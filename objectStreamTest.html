@@ -1,0 +1,218 @@
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 50; height: 50 }
+		</style>
+	</head>
+	<head>
+ 	 	<script src="js/pace.js"></script>
+  		<link href="loadingbar.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id = "curtain" >
+	        <div id= "start">
+	          <a onclick="begin()"> 
+	            You are bigger than You<br/><br/>
+	            Start <br/>
+	          </a>
+	        </div>
+       
+     	</div>
+		<script src="js/three.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script src= "js/CollectionGroup.js"		></script>
+		<script src = "js/Stream.js"               ></script>
+		<script src = "js/AudioController.js"      ></script>
+		<script src = "js/AudioTexture.js"         ></script>
+		<script src = "js/FlyControls.js"         ></script>
+		<script src = "orbitingGroup.js"         ></script>
+		<script src = "js/SpiralSpheres.js"         ></script>
+		<script src = "js/Tween.js"         ></script>
+		<script src = "js/tunnel.js"         ></script>
+		<script src = "js/objectStream.js"         ></script>
+		
+
+		<script>
+
+			var lightOffset = 0;
+			var _isPlaying = false;
+
+
+			var audioController = new AudioController();
+			var stream = new Stream('bloodmoon.mp3', audioController );
+			var clock = new THREE.Clock();
+
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var speed = 500;
+
+
+			/*******************
+			  Universal objects
+			*******************/
+			//cursor sphere - controlled by mouse
+			var cursorSphere;
+			var plane;
+			var planeOffset = 400;
+			var mouse = new THREE.Vector2();
+			var raycaster = new THREE.Raycaster();
+
+			var buffSize = 50;
+			var objStream = new THREE.Object3D();
+			var objectArray = [];
+
+			// lighting
+			var pointLight = new THREE.PointLight( 0xFFFFFF );
+
+			pointLight.position.x = 10;
+			pointLight.position.y = 50;
+			pointLight.position.z = 10;
+
+			scene.add(pointLight);
+			
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			//time
+
+			var time = 0;
+			var delta;
+
+			camera.position.z = 10;
+
+			init();
+
+    		//audioController.mute.gain.value = 0;
+    		function init() {
+				
+				objStream.position = new THREE.Vector3(0,0,0);
+				
+				//this.sphereColor = color;
+				var material = new THREE.MeshPhongMaterial( { color: 0xff0010 } );
+				var isoGeometry = new THREE.IcosahedronGeometry(5, 0);
+
+				for ( var i = 0; i < buffSize; i++) {
+					
+					var object = new THREE.Mesh(isoGeometry, material);
+					object.position.x = objStream.position.x
+					object.position.y = objStream.position.y
+					object.position.z = -(camera.far + (camera.far/buffSize)*i);
+					objectArray.push(object);
+					scene.add(object);
+					//pickups.push(object);	
+				}
+
+				objStream.position.z = (camera.position.z - camera.far);
+
+
+
+				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				//plane for sphere location/raycasting
+				plane = new THREE.Mesh(
+					new THREE.PlaneGeometry( 2000, 2000, 8, 8 ),
+					new THREE.MeshBasicMaterial( { visible: false } )
+				);
+				scene.add( plane );
+
+				var cursorGeometry = new THREE.SphereGeometry(30, 32, 32);
+				cursorSphere = new THREE.Mesh ( 
+					cursorGeometry, new THREE.MeshLambertMaterial( { color: 0xff0010 } ) 
+				);
+				scene.add (cursorSphere);
+
+    		}
+
+
+    		function begin() {
+    			document.getElementById("curtain").style.display = "none";
+    			stream.play();
+    			render();
+    		}
+
+			var render = function () {
+				requestAnimationFrame( render );
+
+				time = clock.getElapsedTime();
+
+				delta = clock.getDelta();
+
+				update();
+				audioController.update();
+
+				
+				camera.position.z = -speed * time;
+
+				plane.lookAt(camera.position);
+				plane.position.z = camera.position.z - planeOffset;
+
+				renderer.render(scene, camera);
+			};
+
+			function update() {
+
+				cursorSphere.position.z = plane.position.z;
+
+
+				objStream.position.x = -cursorSphere.position.x;
+				objStream.position.y = -cursorSphere.position.y;
+				objStream.position.z = (camera.position.z - (camera.far - (100*sin(time))) ;
+				console.log (time);
+				//console.log(camera.position.z);
+				console.log (objStream.position.z);
+
+				for( var i = 0; i < buffSize; i++) {
+
+					if (objectArray[i].position.z > camera.position.z) {
+
+						objectArray[i].position.x = objStream.position.x;
+						objectArray[i].position.y = objStream.position.y;
+						objectArray[i].position.z = objStream.position.z;
+
+					}
+				}
+    			
+    		}
+
+			//CONTROLS:
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObject( plane );
+
+				if (intersects.length > 0) {
+					//cursorSphere.position.set (0,0,0);
+					cursorSphere.position.copy (intersects[0].point);
+				} 
+		
+
+			}
+
+		
+			
+
+			
+		</script>
+		<!doctype html>
+	</body>
+</html>s

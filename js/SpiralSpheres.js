@@ -1,4 +1,4 @@
-function SpiralSpheres (num, relSize, radius, stretch, audioController, color, offset ) {
+function SpiralSpheres (num, relSize, radius, stretch, audioController, offset, endtime ) {
 
 	var offset = offset;
 	if (typeof offest ==='undefined') { offset = 0;}
@@ -7,13 +7,14 @@ function SpiralSpheres (num, relSize, radius, stretch, audioController, color, o
 	this.relativeSize = relSize;
 	this.audioController = audioController;
 	this.orbitRadius = radius;
-	this.sphereColor = color;
+	//this.sphereColor = color;
 	var stretch = stretch;
+	var endTime = endtime
 
 	this.spiralGroup = new THREE.Object3D();
 
 	var sphereGeometry = new THREE.SphereGeometry(this.relativeSize,32,32);
-	var material = new THREE.MeshPhongMaterial( { color: this.sphereColor } );
+	var material = new THREE.MeshPhongMaterial( { color: 0xff0010 } );
 
 	for ( var i = 0; i < numSpheres; i++) {
 
@@ -28,7 +29,7 @@ function SpiralSpheres (num, relSize, radius, stretch, audioController, color, o
 
 	this.update = function () {
 
-		if (this.spiralGroup.position.z > camera.position.z + (numSpheres* stretch + 100)) {
+		if (time < endTime && this.spiralGroup.position.z > camera.position.z + (numSpheres* stretch + 100)) {
 			for( var i = 0; i < numSpheres; i++) {
 
 				this.spiralGroup.children[i].scale.x = this.audioController.analyzer.array[i]/20; 

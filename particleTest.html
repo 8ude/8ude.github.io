@@ -1,0 +1,445 @@
+<!-- Template to test stuff; update libs as necessary; remember SAVEAS -->
+
+<html>
+
+	<head>
+		<title>My first Three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 50; height: 50 }
+		</style>
+	</head>
+	<head>
+ 	 	<script src="js/pace.js"></script>
+  		<link href="loadingbar.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id = "curtain" >
+	        <div id= "start">
+	          <a onclick="begin()"> 
+	            You are bigger than You<br/><br/>
+	            Start <br/>
+	          </a>
+	        </div>
+       
+     	</div>
+		<script src="js/three.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script src= "js/CollectionGroup.js"		></script>
+		<script src = "js/Stream.js"               ></script>
+		<script src = "js/AudioController.js"      ></script>
+		<script src = "js/AudioTexture.js"         ></script>
+		<script src = "js/FlyControls.js"         ></script>
+		<script src = "orbitingGroup.js"         ></script>
+		<script src = "js/SpiralSpheres.js"         ></script>
+		<script src = "js/Tween.js"         ></script>
+		<script src = "js/tunnel.js"         ></script>
+		<script src = "js/objectStream.js"         ></script>
+		
+
+		<script>
+
+			//collection blocks with pickup behavior included in scene 1; cursor sphere and loading screen left in; all other scene behaviors omitted
+
+			var lightOffset = 0;
+			var _isPlaying = false;
+
+
+			var audioController = new AudioController();
+			var stream = new Stream('bloodmoon.mp3', audioController );
+			var clock = new THREE.Clock();
+
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var speed = 100;
+
+			var scene1Start = 0;
+			var scene2Start = 30;
+
+			/*******************
+			  Universal objects
+			*******************/
+			//cursor particles - controlled by mouse
+			var cursorSphere;
+
+			var particleSystem;
+			var particleRadius = 15;
+			var particleCount = 1800,
+  		   		 particles = new THREE.Geometry(),
+		   		 pMaterial = new THREE.ParticleBasicMaterial({
+					color: 0xFFFFFF,
+					size: 20,
+					map: THREE.ImageUtils.loadTexture(
+					  "particle.png"
+					),
+					blending: THREE.AdditiveBlending,
+					transparent: true
+				});
+
+			var plane;
+			var planeOffset = 400;
+			var mouse = new THREE.Vector2();
+			var raycaster = new THREE.Raycaster();
+
+
+
+			//all objects picked up by player
+			var pickups = [];
+			//square pickup blocks on endless cycle
+			var pickupBlocks = [];
+
+			var boxBounds = 1000;
+			var collectionGroup1;
+			var numPickups = 250;
+			
+			var minDistance = 50;
+			var collectScale = 1;
+
+			var pickupGeo = new THREE.BoxGeometry( 10, 10, 10 );
+
+			// lighting
+			var pointLight = new THREE.PointLight( 0xFFFFFF );
+
+			pointLight.position.x = 10;
+			pointLight.position.y = 50;
+			pointLight.position.z = 10;
+
+			scene.add(pointLight);
+
+			/*******************
+			  scene 1 objects
+			*******************/
+
+			
+			var scene1Objects = new THREE.Object3D();
+
+
+			/*******************
+			  scene 2 objects
+			*******************/
+
+			var scene2Objects = new THREE.Object3D();
+			
+			/*******************
+			  scene 3 objects
+			*******************/
+
+
+			/*******************
+			  scene 4 objects
+			*******************/			
+
+
+
+
+			
+			
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			
+			var numPickups = 250;
+			
+			var minDistance = 50;
+			var collectScale = 1;
+
+
+			
+			var time = 0;
+			var delta;
+
+			
+
+			camera.position.z = 10;
+
+			init();
+
+    		//audioController.mute.gain.value = 0;
+    		function init() {
+    			//populate pickups
+	    		
+
+				// initialize collectionGroup
+				collectionGroup1 = new CollectionGroup(true, false, 0.01);
+
+				
+
+				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				//plane for sphere location/raycasting
+				plane = new THREE.Mesh(
+					new THREE.PlaneGeometry( 2000, 2000, 8, 8 ),
+					new THREE.MeshBasicMaterial( { visible: false } )
+				);
+				scene.add( plane );
+
+				var cursorGeometry = new THREE.SphereGeometry(30, 32, 32);
+				cursorSphere = new THREE.Mesh ( 
+					cursorGeometry, new THREE.MeshLambertMaterial( { color: 0xff0010 } ) 
+				);
+				cursorSphere.position.z = camera.position.z;
+
+				scene.add (cursorSphere);
+
+				// now create the individual particles
+				for (var p = 0; p < particleCount; p++) {
+
+				  // create a particle with random
+				  // position values, -250 -> 250
+				  var pX = Math.random() * 30 - 15,
+				      pY = Math.random() * 30 - 15,
+				      pZ = Math.random() * 50,
+				      particle = new THREE.Vector3(pX, pY, pZ);
+				      particle.velocity = new THREE.Vector3(
+					  -Math.random(), // x
+					  -Math.random(), // y: random vel
+					  Math.random()*10);             // z
+
+				  // add it to the geometry
+				  particles.vertices.push(particle);
+				}
+
+				// create the particle system
+				particleSystem = new THREE.Points(
+				    particles,
+				    pMaterial);
+				particleSystem.softParticles = true;
+				// add it to the scene
+				scene.add(particleSystem);
+
+				//initialize infinite pickupBoxes
+
+				var pickupGeo = new THREE.BoxGeometry( 10, 10, 10 );
+
+				for (i = 0; i<numPickups; i++) {
+					pickupObject = new THREE.Mesh();
+					var pickupColor = new THREE.Color(Math.random(), Math.random() / 2, 0)
+					var pickupObject = new THREE.Mesh( pickupGeo, new THREE.MeshLambertMaterial( { color: pickupColor, transparent: true, opacity: 1.0 } ) );
+
+					pickupObject.position.x = Math.random() * (2*boxBounds) - boxBounds;
+					pickupObject.position.y = Math.random() * (2*boxBounds) - boxBounds;
+					pickupObject.position.z = -Math.random() * (camera.far/4);
+
+					pickupObject.rotation.x = Math.random() * 2 * Math.PI;
+					pickupObject.rotation.y = Math.random() * 2 * Math.PI;
+					pickupObject.rotation.z = Math.random() * 2 * Math.PI;
+
+					pickupObject.scale.x = Math.random() * 2 + 1;
+					pickupObject.scale.y = Math.random() * 2 + 1;
+					pickupObject.scale.z = Math.random() * 2 + 1;
+
+					pickupBlocks.push( pickupObject );
+
+					pickups.push( pickupObject );
+
+					scene.add(pickupObject);
+				}
+
+				scene1Init();
+				scene2Init();
+
+
+
+    		}
+
+    		function scene1Init() {
+    			scene.add(scene1Objects);
+			}
+
+			function scene2Init() {
+
+				//DON'T FORGET THIS LINE!!!!
+				scene.add(scene2Objects);
+			}
+
+
+    		function begin() {
+    			document.getElementById("curtain").style.display = "none";
+    			stream.play();
+    			render();
+    		}
+
+			var render = function () {
+				requestAnimationFrame( render );
+
+				time = clock.getElapsedTime();
+
+				delta = clock.getDelta();
+
+				update();
+				audioController.update();
+
+				
+				camera.position.z = -speed * time;
+
+				plane.lookAt(camera.position);
+				plane.position.z = camera.position.z - planeOffset;
+
+				renderer.render(scene, camera);
+			};
+
+			function update() {
+
+
+
+				if (time < scene2Start) {
+					scene1Update();
+
+				} else {
+					scene2Objects.visible = true;
+					scene2Update();
+				}
+
+				
+				    			
+    		}
+
+			//CONTROLS:
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObject( plane );
+
+				if (intersects.length > 0) {
+					//cursorSphere.position.set (0,0,0);
+					cursorSphere.position.x = intersects[0].point.x;
+					cursorSphere.position.y = intersects[0].point.y;
+				} 
+		
+
+			}
+
+			
+				
+			function scene1Update() {
+				if (time < 30) {
+					if (cursorSphere.position.z > plane.position.z) {
+						cursorSphere.position.z -= 2;
+					}
+				} else cursorSphere.position.z = plane.position.z;
+
+				for (var i = 0; i < numPickups; i++) { 
+					var arrayIndex = Math.floor(1024/numPickups) * i;
+					var audioValue = audioController.analyzer.array[2*i];
+
+    				if (audioValue >100 && pickupBlocks[i].position.z>camera.position.z) {
+    					pickupBlocks[i].scale.x = audioValue/(scene2Start+20-time);
+    					pickupBlocks[i].position.z = camera.position.z-
+    												(Math.random()*500 + (camera.far-200));
+    				} 
+
+    				pickupBlocks[i].material.opacity = audioValue/128;
+    				pickupBlocks[i].scale.y = audioController.analyzer.array[2*i]/(scene2Start+20-time);
+				}
+
+				collectionGroup1._canPickup = true;
+				collectionGroup1.update();
+
+				particleSystem.position.z = cursorSphere.position.z;
+
+				// add some rotation to the system
+				//particleSystem.rotation.y += 0.01;
+
+				var pCount = particles.vertices.length;
+				while (pCount--) {
+
+				    // get the particle
+					var particle =
+				    	particles.vertices[pCount];
+
+				    // check if we need to reset
+				    if (particle.z > 400) {
+				    	particle.y = cursorSphere.position.y + (Math.random()*particleRadius - particleRadius);
+				    	particle.x = cursorSphere.position.x + (Math.random()*particleRadius - particleRadius);
+				    	particle.z = 0;
+				    	particle.velocity = new THREE.Vector3(0,0,0);
+				    	
+				    }
+
+				    // update the velocity with
+				    // a splat of randomnization
+			    	//particle.velocity.y -= Math.random() * .1;
+			    	particle.velocity.z += Math.random() * .1;
+
+			    	// and the position
+			    	particle.add(
+			    	particle.velocity);
+				}
+				// flag to the particle system
+				// that we've changed its vertices.
+				particleSystem.geometry.verticesNeedUpdate = true;
+			
+
+	    	}
+
+			function scene2Update() {
+
+				cursorSphere.position.z = plane.position.z;
+
+				//dissipate particle system
+				if (time < scene2Start + 15) {
+					particleSystem.position.z = cursorSphere.position.z;
+				}
+
+				// add some rotation to the system
+				//particleSystem.rotation.y += 0.01;
+
+				var pCount = particles.vertices.length;
+				while (pCount--) {
+
+				    // get the particle
+					var particle =
+				    	particles.vertices[pCount];
+
+				    // check if we need to reset
+				    if (particle.z > 400) {
+				    	particle.y = cursorSphere.position.y + (Math.random()*particleRadius - particleRadius);
+				    	particle.x = cursorSphere.position.x + (Math.random()*particleRadius - particleRadius);
+				    	particle.z = 0 + (Math.random()*(particleRadius/4) - (particleRadius/4));
+				    	particle.velocity = new THREE.Vector3(0,0,0);
+				    	particleRadius += 0.2
+				    }
+
+				    // update the velocity with
+				    // a splat of randomnization
+			    	//particle.velocity.y -= Math.random() * .1;
+			    	particle.velocity.z += Math.random() * .1;
+
+			    	// and the position
+			    	particle.add(
+			    	particle.velocity);
+				}
+				// flag to the particle system
+				// that we've changed its vertices.
+				particleSystem.geometry.verticesNeedUpdate = true;
+
+				
+
+				
+			}	
+
+			
+
+			
+		</script>
+		<!doctype html>
+	</body>
+</html>s
