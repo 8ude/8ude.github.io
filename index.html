@@ -33,6 +33,104 @@
 		<script src = "js/Tween.js"         ></script>
 		<script src = "js/tunnel.js"         ></script>
 		<script src = "js/objectStream.js"         ></script>
+		<script src = "js/TweenMax.js"         ></script>
+
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+	      varying vec2 vUv;
+
+	      void main()
+	      {
+	        vUv = uv;
+	        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+	        gl_Position = projectionMatrix * mvPosition;
+	      }
+
+	    </script>
+
+	    <script id="fragmentShader" type="x-shader/x-fragment">
+
+	      uniform vec2 resolution;
+	      uniform float time;
+	      uniform float sound;
+
+	      varying vec2 vUv;
+
+	      void main(void)
+	      {
+
+	        vec2 p = -1.0 + 2.0 * vUv;
+	        float a = time*sound*40.0;
+	        float d,e,f,g=1.0/40.0,h,i,r,q;
+
+	        e=400.0*(p.x*1.7+0.5)*p.y;
+	        f=400.0*(p.y*0.5+0.5);
+	        i=200.0+sin(e*g+a/50.0)*500.0;
+	        //i=200.0+sin(e*g+a/300.0)*20.0;
+	        d=200.0+cos(f*g/2.0)*18.0+cos(e*g)*7.0;
+	        r=sqrt(pow(i-e,2.0)+pow(d-f,2.0));
+	        q=f/r;
+	        e=(r*cos(q))-a/2.0;f=(r*sin(q))-a/2.0;
+	        d=sin(e*g)*176.0+sin(e*g)*164.0+r;
+	        h=((f+d)+a/2.0)*g;
+	        i=cos(h+r*p.y/1.3)*(e+e+a)+cos(q*g*6.0)*(r+h/3.0);
+	        h=sin(f*g)*144.0-sin(e*g)*212.0*p.y;
+	        h=(h+(f-e)*q+sin(r-(a+h)/7.0)*10.0+i/4.0)*g;
+	        i+=cos(h*2.3*sin(a/350.0-q))*184.0*sin(q-(r*4.3+a/12.0)*g)+tan(r*g+h)*184.0*cos(r*g+h);
+	        i=mod(i/5.6,256.0)/64.0;
+	        if(i<0.0) i+=4.0;
+	        if(i>=2.0) i=4.0-i;
+	        d=r/350.0;
+	        d+=sin(d*d*8.0)*0.52;
+	        f=(sin(a*g)+1.0)/2.0;
+	        //gl_FragColor=vec4(vec3( f*i/10.0, f*i/20.0, f*i/20.0)*d*p.x+vec3(i/1.3+d/4.0,i/1.3+d/4.0,i/5.0+d/5.0)*d*(1.0-p.x),1);
+	        gl_FragColor=vec4(vec3( f*i/1.0, i/200.0+d/100.0, i/200.0)*d*p.x+vec3(i/1.3+d/4.0,i/20.0+d/30.0,i/20.0)*d*(1.0-p.x),1);
+
+	      }
+
+	    </script>
+
+	    <script id="fragmentShader2" type="x-shader/x-fragment">
+
+	      uniform vec2 resolution;
+	      uniform float time;
+	      uniform float sound;
+
+	      varying vec2 vUv;
+
+	      void main(void)
+	      {
+
+	        vec2 p = -1.0 + 2.0 * vUv;
+	        float a = time*sound*40.0;
+	        float d,e,f,g=1.0/40.0,h,i,r,q;
+
+	        e=400.0*(p.x*1.7+0.5)*p.y;
+	        f=400.0*(p.y*0.5+0.5);
+	        i=200.0+sin(e*g+a/50.0)*500.0;
+	        //i=200.0+sin(e*g+a/300.0)*20.0;
+	        d=200.0+cos(f*g/2.0)*18.0+cos(e*g)*7.0;
+	        r=sqrt(pow(i-e,2.0)+pow(d-f,2.0));
+	        q=f/r;
+	        e=(r*cos(q))-a/2.0;f=(r*sin(q))-a/2.0;
+	        d=sin(e*g)*176.0+sin(e*g)*164.0+r;
+	        h=((f+d)+a/2.0)*g;
+	        i=cos(h+r*p.y/1.3)*(e+e+a)+cos(q*g*6.0)*(r+h/3.0);
+	        h=sin(f*g)*144.0-sin(e*g)*212.0*p.y;
+	        h=(h+(f-e)*q+sin(r-(a+h)/7.0)*10.0+i/4.0)*g;
+	        i+=cos(h*2.3*sin(a/350.0-q))*184.0*sin(q-(r*4.3+a/12.0)*g)+tan(r*g+h)*184.0*cos(r*g+h);
+	        i=mod(i/5.6,256.0)/64.0;
+	        if(i<0.0) i+=4.0;
+	        if(i>=2.0) i=4.0-i;
+	        d=r/350.0;
+	        d+=sin(d*d*8.0)*0.52;
+	        f=(sin(a*g)+1.0)/20.0;
+	        //gl_FragColor=vec4(vec3( f*i/10.0, f*i/20.0, f*i/20.0)*d*p.x+vec3(i/1.3+d/4.0,i/1.3+d/4.0,i/5.0+d/5.0)*d*(1.0-p.x),1);
+	        gl_FragColor=vec4(vec3( f*i/10.0, f*i/10.0, f*i/10.0)*d*p.x+vec3(i/10.3+d/4.0,i/10.3+d/4.0, i/10.3+d/4.0)*d*(1.0-p.x), sound);
+
+	      }
+
+	    </script>
 
 		
 
@@ -63,12 +161,12 @@
 			var speed = 100;
 
 			var scene1Start = 0;
-			var scene2Start = 58;
-			var scene3Start = 184;
+			var scene2Start = 56;
+			var scene3Start = 183;
 			var scene4Start = 255;
 			var scene5Start = 311;
 
-			var degreeToRadian = Math.PI/180
+			var degreeToRadian = Math.PI/180;
 
 			/*******************
 			  scene 1 objects
@@ -79,7 +177,7 @@
 
 			var particleSystem;
 			var particleRadius = 15;
-			var particleCount = 1000,
+			var particleCount = 500,
   		   		 particles = new THREE.Geometry(),
 		   		 pMaterial = new THREE.ParticleBasicMaterial({
 					color: 0xFFFFFF,
@@ -112,6 +210,7 @@
 			*******************/			
 			var stream2;
 			var scene4Objects = new THREE.Object3D();
+			var approachSize = 0;
 
 			/*******************
 			  All scene objects
@@ -166,7 +265,29 @@
 			
 			//distant sphere - reacts to audio
 			var centerGeometry = new THREE.SphereGeometry( 20,32,32 );
-			var centerMaterial = new THREE.MeshPhongMaterial(0xFFFFFF);
+
+			var uniforms = {
+	          time: { type: "f", value: 1.0 },
+	          sound: { type: "f", value: 1.0 },
+	          resolution: { type: "v2", value: new THREE.Vector2() }
+	        };
+
+			var centerMaterial = new THREE.ShaderMaterial( {
+
+	          uniforms: uniforms,
+	          vertexShader: document.getElementById( 'vertexShader' ).textContent,
+	          fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+
+	        } );
+
+	        var tunnelMaterial = new THREE.ShaderMaterial( {
+
+	          uniforms: uniforms,
+	          vertexShader: document.getElementById( 'vertexShader' ).textContent,
+	          fragmentShader: document.getElementById( 'fragmentShader2' ).textContent
+
+	        } );
+			//var centerMaterial = new THREE.MeshPhongMaterial(0xFFFFFF);
 
 			var centerSphere = new THREE.Mesh( centerGeometry, centerMaterial );
 			scene.add (centerSphere);
@@ -229,7 +350,7 @@
 				for (i = 0; i<numPickups; i++) {
 					pickupObject = new THREE.Mesh();
 					var pickupColor = new THREE.Color(Math.random() / 2, 0, Math.random())
-					var pickupObject = new THREE.Mesh( pickupGeo, new THREE.MeshLambertMaterial( { color: pickupColor, transparent: true, opacity: 1.0 } ) );
+					var pickupObject = new THREE.Mesh( pickupGeo, new THREE.MeshLambertMaterial( { color: pickupColor, transparent: true, opacity: 1.0, wireframe: true } ) );
 
 					pickupObject.position.x = Math.random() * (2*boxBounds) - boxBounds;
 					pickupObject.position.y = Math.random() * (2*boxBounds) - boxBounds;
@@ -297,7 +418,7 @@
 				//-----------//
 				
 				tunnel1 = new Tunnel(0, scene3Start, audioController);
-				tunnel2 = new Tunnel(250, scene3Start, audioController);
+				tunnel2 = new Tunnel(300, scene3Start, audioController);
 
 				scene2Objects.add(tunnel1.group, tunnel2.group);
 
@@ -363,6 +484,8 @@
 				plane.position.z = camera.position.z - planeOffset;
 
 				renderer.render(scene, camera);
+				uniforms.time.value += 0.005;
+				uniforms.sound.value = audioController.analyzer.array[20]/1280;
 			};
 
 			function update() {
@@ -434,8 +557,8 @@
 				} else cursorSphere.position.z = plane.position.z;
 
 				collectionGroup1.update();
-				tunnel1.update();
-				tunnel2.update();
+				//tunnel1.update();
+				//tunnel2.update();
 
 				//update particle position
 
@@ -493,7 +616,7 @@
 				centerSphere.position.z = camera.position.z - 1000;
 				if (time >= 10){ 
 					centerSphere.visible = true;
-					var scaleDown = 100 - ((100/scene2Start)*time);
+					var scaleDown = 500 - ((500/scene2Start)*time);
 
 					centerSphere.scale.z = -(audioController.analyzer.array[20]/128)*scaleDown;
 					centerSphere.scale.y = -(audioController.analyzer.array[30]/128)*scaleDown;
@@ -505,6 +628,12 @@
 			function scene2Update() {
 
 				cursorSphere.position.z = plane.position.z;
+				if (time < (scene2Start + 10)) {
+					cursorSphere.scale.x += 0.01;
+					cursorSphere.scale.y += 0.01;
+					cursorSphere.scale.z += 0.01;
+				}
+
 
 				//dissipate particle system
 				if (time < scene2Start + 15) {
@@ -574,6 +703,7 @@
 
 				collectionGroup1._canPickup = true;
 				collectionGroup1.update();
+				centerSphere.rotation.z += delta*4;
 				
 			}
 
@@ -587,13 +717,15 @@
 
 				}
 
-				if (time < (scene3Start + 5)) {
-					camera.fov -= 0.001;
-					camera.updateProjectionMatrix();
-				} else if (time > (scene3Start + 5)) {
-					camera.zoom += 0.0005;
-					camera.updateProjectionMatrix();
-				} 
+				centerSphere.position.y += 0.1;
+
+				// if (time < (scene3Start + 5)) {
+				// 	camera.fov -= 0.001;
+				// 	camera.updateProjectionMatrix();
+				// } else if (time > (scene3Start + 5)) {
+				// 	camera.zoom += 0.0005;
+				// 	camera.updateProjectionMatrix();
+				// } 
 
 				var centerSpeed = 100;
 
@@ -611,24 +743,26 @@
 
 				collectionGroup1.update();
 
-				centerSphere.scale.z = 5 * audioController.analyzer.array[20]/128;
-				centerSphere.scale.y = 5 * audioController.analyzer.array[30]/128;
-				centerSphere.scale.x = 5 * audioController.analyzer.array[40]/128;
+				centerSphere.scale.z = 5 * audioController.analyzer.array[20]/256;
+				centerSphere.scale.y = 5 * audioController.analyzer.array[30]/256;
+				centerSphere.scale.x = 5 * audioController.analyzer.array[40]/256;
+
+				centerSphere.rotation.z += delta*4;
 
 			}
 
 			function scene4Update() {
 
+				speed = 600;
+
 				cursorSphere.position.z = plane.position.z;
-				var centerSpeed = 100;
 
 				if (time < scene4Start + 20) {
+					centerSphere.position.x += 0.1;
+					centerSphere.position.y -= 0.2;
+				}
 
-					var centerSpeed = 100;
-					centerSphere.position.x += centerSpeed * delta;
-					centerSphere.position.y -= centerSpeed * delta;
-
-				} else centerSphere.position.x -= centerSpeed * delta;
+				//else centerSphere.position.x -= centerSpeed * delta;
 
 				// not happy with this - different way to do camera work??? 
 				//if (camera.zoom < 1) {
@@ -657,15 +791,17 @@
 
 				var scaleUp = (time-scene4Start)/10;
 
-				if (scaleUp < 10) {
-					centerSphere.scale.z = scaleUp * audioController.analyzer.array[20]/128;
-					centerSphere.scale.y = scaleUp * audioController.analyzer.array[30]/128;
-					centerSphere.scale.x = scaleUp * audioController.analyzer.array[40]/128;
-				} else {
-					centerSphere.scale.z = 10 * audioController.analyzer.array[20]/128;
-					centerSphere.scale.y = 10 * audioController.analyzer.array[30]/128;
-					centerSphere.scale.x = 10 * audioController.analyzer.array[40]/128;
-				}
+				centerSphere.scale.z = 5 * audioController.analyzer.array[20]/512;
+				centerSphere.scale.y = 5 * audioController.analyzer.array[30]/512;
+				centerSphere.scale.x = 5 * audioController.analyzer.array[40]/512;
+
+				if (time > scene4Start + 28) {
+					tunnel1.update();
+					tunnel1.tunnelRadius += 0.05;
+					tunnel1.speed = 30;
+				} 
+
+				centerSphere.rotation.z += delta*4;
 
 			}
 
@@ -673,7 +809,9 @@
 
 				cursorSphere.position.z = plane.position.z;
 
-				centerSphere.position.z = camera.position.z - 1000;
+				var zoomIn = (time-scene5Start)*12
+
+				centerSphere.position.z = camera.position.z - 1000 + zoomIn;
 
 				// if (camera.fov <= 90){
 				// 	camera.fov += 0.01;
@@ -691,18 +829,15 @@
 
 				//speed = 100;
 
-				var flickerOut = (50 - (time-scene5Start))/10;
+				var flickerOut = 5 + (time-scene5Start);
 
-				if (flickerOut < 0) {
-					flickerOut = 0;
-				}
-
-				centerSphere.material.color.setRGB(audioController.analyzer.array[20]/128, audioController.analyzer.array[20]/128, audioController.analyzer.array[20]/128);
+				//centerSphere.material.color.setRGB(audioController.analyzer.array[20]/128, audioController.analyzer.array[20]/128, audioController.analyzer.array[20]/128);
 				centerSphere.scale.y = flickerOut * audioController.analyzer.array[30]/128;
 				centerSphere.scale.x = flickerOut * audioController.analyzer.array[40]/128;
 
 				particleSystem.position.z = camera.position.z;
 				var pCount = particles.vertices.length;
+				particleRadius = 100
 				while (pCount--) {
 
 				    // get the particle
@@ -710,18 +845,18 @@
 				    	particles.vertices[pCount];
 
 				    // check if we need to reset
-				    if (particle.z > camera.far) {
+				    if (particle.z < (camera.position.z - camera.far) || particle.z > camera.position.z) {
 				    	particle.y = cursorSphere.position.y + Math.sin(pCount*degreeToRadian)*(Math.random()*particleRadius) - (particleRadius/2);
 				    	particle.x = cursorSphere.position.x + Math.cos(pCount*degreeToRadian)*(Math.random()*particleRadius) - (particleRadius/2);
 				    	particle.z = 0 + (Math.random()*(particleRadius/4) - (particleRadius/4));
-				    	particle.velocity = new THREE.Vector3(0,0,0);
-				    	particleRadius += 0.2
+				    	particle.velocity = new THREE.Vector3(0,0,-1);
+				    	//particleRadius += 0.2
 				    }
 
 				    // update the velocity with
 				    // a splat of randomnization
 			    	//particle.velocity.y -= Math.random() * .1;
-			    	particle.velocity.z -= Math.random() * .5;
+			    	particle.velocity.z -= Math.random();
 
 			    	// and the position
 			    	particle.add(
@@ -730,6 +865,9 @@
 				// flag to the particle system
 				// that we've changed its vertices.
 				particleSystem.geometry.verticesNeedUpdate = true;
+
+				centerSphere.rotation.z += delta*6;
+
 
 			}
 			
