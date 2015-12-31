@@ -7,5 +7,6 @@ re: the code - one day I'll look back on it and laugh. as of now it's a hackey m
 don't steal the music, please
 
 code: Three.js by MrDoob
-      AudioController, Stream, AudioTexture, ShaderLoader by Cabbibo (<3)
+      AudioController, Stream, AudioTexture, ShaderLoader by Cabbibo
+      (current) Shader modified from Monjori by Mic 
       rest of it cobbled, hacked, and smashed together from tinkering and experimenting
