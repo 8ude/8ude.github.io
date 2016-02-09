@@ -8,7 +8,7 @@ function AudioController(){
     alert( 'WEB AUDIO API NOT SUPPORTED' );
   }*/
  
-  this.ctx      = new AudioContext();
+  this.ctx      = new window.AudioContext || window.webkitAudioContext;
 
   this.mute     = this.ctx.createGain();
   this.gain     = this.ctx.createGain();
