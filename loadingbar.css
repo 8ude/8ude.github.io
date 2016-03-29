@@ -63,7 +63,7 @@
 
 #start{
 
-
+        display:none;
         color:#fff;
         font-family:courier;
         font-size:2em;
@@ -74,3 +74,17 @@
         text-align:center;
 
       }
+
+#winner{
+
+      color:#fff;
+      font-family:courier;
+      font-size:2em;
+      position:absolute;
+      margin-top:10px;
+      top:50%;
+      width:100%;
+      text-align:center;
+      display:none;
+
+    }

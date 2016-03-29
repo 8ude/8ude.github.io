@@ -2,8 +2,17 @@
 	<head>
 		<title>Blood Moon Work In Progress</title>
 		<style>
-			body { margin: 0; }
+
+			body {
+	          
+	          background-color: #000000;
+	          margin: 0px;
+	          
+	        }
+			
 			canvas { width: 50; height: 50 }
+
+
 		</style>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -19,6 +28,15 @@
 	            You are bigger than You<br/><br/>
 	            Start <br/>
 	          </a>
+	        </div>
+	        <div id = "winner">
+	        	<p>
+	        		Thanks!<br/><br/>
+	        	</p>
+	        	<a onclick="begin()">
+	        		Replay
+	        	</a>
+
 	        </div>
        
      	</div>
@@ -165,6 +183,7 @@
 			var scene3Start = 183;
 			var scene4Start = 255;
 			var scene5Start = 311;
+			var songEnd = 10;
 
 			var degreeToRadian = Math.PI/180;
 
@@ -461,11 +480,7 @@
 			}
 
 
-    		function begin() {
-    			document.getElementById("curtain").style.display = "none";
-    			stream.play();
-    			render();
-    		}
+    		
 
 			var render = function () {
 				requestAnimationFrame( render );
@@ -509,6 +524,10 @@
 					scene4Update();
 				} else {
 					scene5Update();
+				}
+
+				if (time > songEnd) {
+					triggerWin();
 				}
 
 				console.log(time);
@@ -870,6 +889,33 @@
 
 
 			}
+
+			function begin() {
+    			var curtain = $("#curtain");
+		        if(curtain.css("display") == "block"){
+		          curtain.fadeOut('slow',function(){
+		           
+		           $("#start").css("display","none"); 
+		            
+		          })    
+		        }
+		        time = 0;
+    			stream.play();
+    			render();
+    			
+    		}
+
+			function triggerWin(){
+
+		        //score = 10000000000;
+		        //hasWon = true;
+		        $("#curtain").css("background","#000");
+		        $("#curtain").fadeIn(5000 , function(){
+		          
+		          $("#winner").fadeIn('slow');
+		        });
+		         
+		    }
 			
 
 			
