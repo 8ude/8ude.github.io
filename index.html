@@ -35,9 +35,6 @@
 	        		Thanks!<br/><br/>
 	        		--Gazda--<br/><br/>
 	        	</p>
-	        	<a onclick="begin()">
-	        		Replay
-	        	</a>
 
 	        </div>
        
@@ -228,13 +225,14 @@
   		   		 particles = new THREE.Geometry(),
 		   		 pMaterial = new THREE.ParticleBasicMaterial({
 					color: 0xFFFFFF,
-					size: 5,
+					size: 3,
 					map: THREE.ImageUtils.loadTexture(
 					  "particle.png"
 					),
 					blending: THREE.AdditiveBlending,
 					transparent: true,
-					alphaTest: 0.5
+					alphaTest: 0.5,
+					
 				});
 
 			/*******************
@@ -882,9 +880,9 @@
 
 				var scaleUp = (time-scene4Start)/10;
 
-				centerSphere.scale.z = 5 * audioController.analyzer.array[20]/512;
-				centerSphere.scale.y = 5 * audioController.analyzer.array[30]/512;
-				centerSphere.scale.x = 5 * audioController.analyzer.array[40]/512;
+				centerSphere.scale.z = scaleUp + 5 * audioController.analyzer.array[20]/512;
+				centerSphere.scale.y = scaleUp + 5 * audioController.analyzer.array[30]/512;
+				centerSphere.scale.x = scaleUp + 5 * audioController.analyzer.array[40]/512;
 
 				if (time > scene4Start + 28) {
 					tunnel1.update();
