@@ -7,9 +7,9 @@
   user-select: none;
 
   z-index: 2000;
-  position: fixed;
+  position: absolute;
   margin: auto;
-  top: 0;
+  top: 60%;
   left: 0;
   right: 0;
   bottom: 0;
@@ -39,7 +39,7 @@
   z-index: 2000;
   display: block;
   position: absolute;
-  top: 0;
+  top: 60%;
   right: 100%;
   height: 100%;
   width: 100%;
@@ -63,13 +63,13 @@
 
 #start{
 
-        display:none;
+        
         color:#fff;
         font-family:courier;
         font-size:2em;
         position:absolute;
         margin-top:10px;
-        top:50%;
+        top:40%;
         width:100%;
         text-align:center;
 

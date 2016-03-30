@@ -25,6 +25,7 @@
 		<div id = "curtain" >
 	        <div id= "start">
 	          <a onclick="begin()"> 
+	            Welcome<br/><br/>
 	            You are bigger than You<br/><br/>
 	            Start <br/>
 	          </a>
@@ -32,6 +33,7 @@
 	        <div id = "winner">
 	        	<p>
 	        		Thanks!<br/><br/>
+	        		--Gazda--<br/><br/>
 	        	</p>
 	        	<a onclick="begin()">
 	        		Replay
@@ -113,6 +115,9 @@
 	      uniform vec2 resolution;
 	      uniform float time;
 	      uniform float sound;
+	      uniform float mousey;
+	      uniform float mousex;
+	      //uniform float alpha = 0.2;
 
 	      varying vec2 vUv;
 
@@ -127,7 +132,7 @@
 	        f=400.0*(p.y*0.5+0.5);
 	        i=200.0+sin(e*g+a/50.0)*500.0;
 	        //i=200.0+sin(e*g+a/300.0)*20.0;
-	        d=200.0+cos(f*g/2.0)*18.0+cos(e*g)*7.0;
+	        d=200.0+cos(f*g/2.0)*18.0+cos(e*g)*7.0 + 50.0*cos(mousex/360.0)+50.0*sin(mousey/360.0);
 	        r=sqrt(pow(i-e,2.0)+pow(d-f,2.0));
 	        q=f/r;
 	        e=(r*cos(q))-a/2.0;f=(r*sin(q))-a/2.0;
@@ -144,11 +149,31 @@
 	        d+=sin(d*d*8.0)*0.52;
 	        f=(sin(a*g)+1.0)/20.0;
 	        //gl_FragColor=vec4(vec3( f*i/10.0, f*i/20.0, f*i/20.0)*d*p.x+vec3(i/1.3+d/4.0,i/1.3+d/4.0,i/5.0+d/5.0)*d*(1.0-p.x),1);
-	        gl_FragColor=vec4(vec3( f*i/10.0, f*i/10.0, f*i/10.0)*d*p.x+vec3(i/10.3+d/4.0,i/10.3+d/4.0, i/10.3+d/4.0)*d*(1.0-p.x), sound);
+	        gl_FragColor=vec4(vec3( f*mousey*i/10.0 + mousex/10.0, f*i/10.0, f*i/10.0)*d*p.x+vec3(i/10.3+d/4.0+mousex/10.0,i/10.3+d/4.0, i/10.3+d/4.0)*d*(1.0-p.x), 0.3);
 
 	      }
 
 	    </script>
+
+	    <script type="application/x-glsl" id="sky-vertex">  
+			varying vec2 vUV;
+
+			void main() {  
+			  vUV = uv;
+			  vec4 pos = vec4(position, 1.0);
+			  gl_Position = projectionMatrix * modelViewMatrix * pos;
+			}
+		</script>
+
+		<script type="application/x-glsl" id="sky-fragment">  
+			uniform sampler2D texture;  
+			varying vec2 vUV;
+
+			void main() {  
+			  vec4 sample = texture2D(texture, vUV);
+			  gl_FragColor = vec4(sample.xyz, sample.w);
+			}
+		</script>  
 
 		
 
@@ -175,15 +200,18 @@
 			var clock = new THREE.Clock();
 
 			var scene = new THREE.Scene();
+			scene.fog = new THREE.Fog( 0x000000);
+
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 			var speed = 100;
 
 			var scene1Start = 0;
 			var scene2Start = 56;
+			//var scene2Start = 56;
 			var scene3Start = 183;
 			var scene4Start = 255;
 			var scene5Start = 311;
-			var songEnd = 10;
+			var songEnd = 375;
 
 			var degreeToRadian = Math.PI/180;
 
@@ -275,19 +303,24 @@
 			 	}
 			
 			*/
-
-
-			
-
-			//add orbiting segments
-
 			
 			//distant sphere - reacts to audio
+			///////////					\\\\\\\\\\\\\
+			////		DEFINE SHADERS    		\\\\\
+			//										\\
 			var centerGeometry = new THREE.SphereGeometry( 20,32,32 );
 
 			var uniforms = {
 	          time: { type: "f", value: 1.0 },
 	          sound: { type: "f", value: 1.0 },
+	          resolution: { type: "v2", value: new THREE.Vector2() }
+	        };
+
+	        var uniforms2 = {
+	          time: { type: "f", value: 1.0 },
+	          sound: { type: "f", value: 1.0 },
+	          mousey: { type: "f", value: 1.0 },
+	          mousex: { type: "f", value: 1.0 },
 	          resolution: { type: "v2", value: new THREE.Vector2() }
 	        };
 
@@ -301,15 +334,25 @@
 
 	        var tunnelMaterial = new THREE.ShaderMaterial( {
 
-	          uniforms: uniforms,
+	          uniforms: uniforms2,
 	          vertexShader: document.getElementById( 'vertexShader' ).textContent,
-	          fragmentShader: document.getElementById( 'fragmentShader2' ).textContent
+	          fragmentShader: document.getElementById( 'fragmentShader2' ).textContent,
+	          transparent: true
 
 	        } );
 			//var centerMaterial = new THREE.MeshPhongMaterial(0xFFFFFF);
 
 			var centerSphere = new THREE.Mesh( centerGeometry, centerMaterial );
 			scene.add (centerSphere);
+
+			var moonGeo = new THREE.SphereGeometry( 22, 32, 32);
+			var moonMaterial = new THREE.MeshPhongMaterial ({
+		     map: new THREE.ImageUtils.loadTexture("moon_texture.jpg"),
+		     transparent: true,
+		     opacity: 0.2
+		    });
+		    var moon = new THREE.Mesh(moonGeo, moonMaterial);
+		    centerSphere.add(moon);
 			
 
 			//cursor sphere - controlled by mouse
@@ -333,7 +376,30 @@
 
 			camera.position.z = 10;
 
-			init();
+			//skybox//
+			//var skyboxTexture = new THREE.TextureLoader().load( "milkyway.jpg" );
+			
+			
+			var skyBoxGeo = new THREE.SphereGeometry(1000, 60, 40);  
+			var skyBoxUniforms = {  
+			  texture: { type: 't', value: new THREE.ImageUtils.loadTexture("milkyway.jpg") }
+			};
+
+			var skyBoxMat = new THREE.ShaderMaterial( {  
+			  uniforms:       skyBoxUniforms,
+			  vertexShader:   document.getElementById('sky-vertex').textContent,
+			  fragmentShader: document.getElementById('sky-fragment').textContent
+			});
+
+			skyBox = new THREE.Mesh(skyBoxGeo, skyBoxMat);  
+			skyBox.scale.set(-1, 1, 1);  
+			skyBox.eulerOrder = 'XZY';  
+			skyBox.renderDepth = 1000.0;  
+			scene.add(skyBox);
+			//camera.add(skyBox);
+
+
+			//init();
 
     		//audioController.mute.gain.value = 0;
     		function init() {
@@ -368,7 +434,7 @@
 
 				for (i = 0; i<numPickups; i++) {
 					pickupObject = new THREE.Mesh();
-					var pickupColor = new THREE.Color(Math.random() / 2, 0, Math.random())
+					var pickupColor = new THREE.Color(1, 1, 1);
 					var pickupObject = new THREE.Mesh( pickupGeo, new THREE.MeshLambertMaterial( { color: pickupColor, transparent: true, opacity: 1.0, wireframe: true } ) );
 
 					pickupObject.position.x = Math.random() * (2*boxBounds) - boxBounds;
@@ -501,12 +567,18 @@
 				renderer.render(scene, camera);
 				uniforms.time.value += 0.005;
 				uniforms.sound.value = audioController.analyzer.array[20]/1280;
+				uniforms2.time.value += 0.005;
+				uniforms2.sound.value = audioController.analyzer.array[20]/1280;
+				uniforms2.mousey.value = mouse.y;
+				uniforms2.mousex.value = mouse.x;
 			};
 
 			function update() {
 
 				//testing zoom shit - would be better with tweens!!
-
+				skyBox.position.z = camera.position.z;
+				skyBox.rotation.z = time * (Math.PI/180);
+				skyBox.rotation.x = time * (Math.PI/180);
 				camera.updateProjectionMatrix(); 
 
 				if (time < scene2Start) {
@@ -530,7 +602,7 @@
 					triggerWin();
 				}
 
-				console.log(time);
+				//console.log(time);
     			
     		}
 
@@ -900,6 +972,7 @@
 		          })    
 		        }
 		        time = 0;
+		        init();
     			stream.play();
     			render();
     			
