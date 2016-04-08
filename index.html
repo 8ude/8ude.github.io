@@ -35,6 +35,9 @@
 	        		Thanks!<br/><br/>
 	        		--Gazda--<br/><br/>
 	        	</p>
+	        	<a onclick ="replay()">
+	        		Play Again<br/><br/>
+	        	</a>
 
 	        </div>
        
@@ -194,7 +197,7 @@
 
 			var audioController = new AudioController();
 			var stream = new Stream('bloodmoon.mp3', audioController );
-			var clock = new THREE.Clock();
+			var clock;
 
 			var scene = new THREE.Scene();
 			scene.fog = new THREE.Fog( 0x000000);
@@ -208,7 +211,7 @@
 			var scene3Start = 183;
 			var scene4Start = 255;
 			var scene5Start = 311;
-			var songEnd = 375;
+			var songEnd = 10;
 
 			var degreeToRadian = Math.PI/180;
 
@@ -287,7 +290,7 @@
 
 
 			var pickupGeo = new THREE.BoxGeometry( 10, 10, 10 );
-			var time = 0;
+			var time;
 			var delta;
 
 
@@ -372,7 +375,7 @@
 
 			scene.add(pointLight);
 
-			camera.position.z = 10;
+			
 
 			//skybox//
 			//var skyboxTexture = new THREE.TextureLoader().load( "milkyway.jpg" );
@@ -401,6 +404,11 @@
 
     		//audioController.mute.gain.value = 0;
     		function init() {
+    			
+    			clock = new THREE.Clock();
+				time = 0;
+    			camera.position.z = 10;
+
     			//populate pickups
 	    		
 
@@ -974,6 +982,21 @@
     			stream.play();
     			render();
     			
+    		}
+
+    		function replay () {
+    			var curtain = $("#curtain");
+		        if(curtain.css("display") == "block"){
+		          curtain.fadeOut('slow',function(){
+		           
+		           $("#start").css("display","none"); 
+		            
+		          })    
+		        }
+		        time = 0;
+		        init();
+    			stream.play();
+    			render();
     		}
 
 			function triggerWin(){
